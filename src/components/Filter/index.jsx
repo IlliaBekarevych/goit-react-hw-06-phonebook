@@ -1,7 +1,11 @@
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux/es/exports';
+import { chengeFilter } from 'redux/contacts/contact-actions';
+import { getFilter } from 'redux/contacts/contact-selectors';
 import s from './index.module.css';
 
-const Filter = ({ filter, onChange }) => {
+function Filter() {
+  const dispatch = useDispatch();
+  const filter = useSelector(getFilter);
   return (
     <label>
       Find contact by name
@@ -10,15 +14,11 @@ const Filter = ({ filter, onChange }) => {
         type="text"
         name="filter"
         value={filter}
-        onChange={onChange}
+        onChange={e => dispatch(chengeFilter(e.target.value))}
       />
     </label>
   );
-};
+}
 
-Filter.propTypes = {
-  filter: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-};
 
 export default Filter;

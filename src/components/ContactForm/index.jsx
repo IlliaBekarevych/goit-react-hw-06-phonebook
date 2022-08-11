@@ -1,42 +1,30 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts } from 'redux/contacts/contact-selectors';
+import { addContact } from 'redux/contacts/contact-actions';
 import s from './index.module.css';
-const shortid = require('shortid');
 
-function ContactForm({ onSubmit }) {
+function ContactForm() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
 
-  const onChange = e => {
-    const { name, value } = e.currentTarget;
-
-    switch (name) {
-      case 'name':
-        setName(value);
-        break;
-
-      case 'number':
-        setNumber(value);
-        break;
-
-      default:
-        break;
-    }
-  };
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
   const hendelSubmit = e => {
     e.preventDefault();
-    const newContact = {
-      name,
-      number,
-      id: String(shortid.generate()),
-    };
-
-    onSubmit(newContact);
-    reset();
-  };
-
-  const reset = () => {
+    if (
+      contacts.find(
+        contact => contact.name.toLowerCase() === name.toLowerCase()
+      )
+    ) {
+      alert(name + ' is alredy in contacts');
+      return;
+    }
+    dispatch(addContact(name, number));
     setName('');
     setNumber('');
   };
@@ -47,7 +35,7 @@ function ContactForm({ onSubmit }) {
         Name
         <input
           className={s.input}
-          onChange={onChange}
+          onChange={e => setName(e.target.value)}
           type="text"
           name="name"
           value={name}
@@ -60,7 +48,7 @@ function ContactForm({ onSubmit }) {
         Number
         <input
           className={s.input}
-          onChange={onChange}
+          onChange={e => setNumber(e.target.value)}
           type="tel"
           name="number"
           value={number}
@@ -75,9 +63,5 @@ function ContactForm({ onSubmit }) {
     </form>
   );
 }
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
 
 export default ContactForm;
